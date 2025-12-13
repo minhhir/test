@@ -1,0 +1,285 @@
+//5_phan-loai-nhan-vien-theo-nhom-tuoi
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.Collectors;
+
+class Employee {
+    private String name;
+    private int age;
+    public Employee(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    public String getName() { return name; }
+    public int getAge() { return age; }
+    public String toDisplayString() {
+        return name + " - " + age;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Predicate<Employee> isOldEnough = emp -> emp.getAge() >= 25;
+        Function<Employee, String> mapToString = Employee::toDisplayString;
+        Comparator<Employee> byAgeDesc = (e1, e2) -> Integer.compare(e2.getAge(), e1.getAge());
+        BinaryOperator<Employee> mergeRule = (e1, e2) -> {
+            return (e1.toDisplayString().length() >= e2.toDisplayString().length()) ? e1 : e2;
+        };
+        try {
+            if (!scanner.hasNextInt()) return;
+            int n = scanner.nextInt();
+            List<Employee> employees = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                String name = scanner.next();
+                int age = scanner.nextInt();
+                employees.add(new Employee(name, age));
+            }
+            List<String> result = employees.stream()
+             .filter(isOldEnough) 
+             .collect(Collectors.toMap(
+                Employee::getName,
+                Function.identity(),
+                mergeRule
+             ))
+             .values().stream().sorted(byAgeDesc).map(mapToString).collect(Collectors.toList()); 
+             result.forEach(System.out::println);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            scanner.close();
+        }
+    }
+}
+
+//1_chuong-trinh-thuc-hien-cac-phep-toan-so-hoc-co-ban
+import java.util.Scanner;
+
+interface IMathOperation {
+    public static final float PI = 3.1416f;
+    void calculate();
+    void showInfo();
+}
+class Addition implements IMathOperation {
+    private float operand1;
+    private float operand2;
+    private float result;
+
+    public Addition(float operand1, float operand2) {
+        this.operand1 = operand1;
+        this.operand2 = operand2;
+    }
+
+    @Override
+    public void calculate() {
+        this.result = this.operand1 + this.operand2;
+    }
+
+    @Override
+    public void showInfo() {
+        calculate();// Thực hiện tính toán trước khi in
+        System.out.println("Lớp: Addition");
+        System.out.printf("%.2f + %.2f = %.2f\n", operand1, operand2, result);
+    }
+}
+class Subtraction implements IMathOperation {
+    private float operand1;
+    private float operand2;
+    private float result;
+
+    public Subtraction(float operand1, float operand2) {
+        this.operand1 = operand1;
+        this.operand2 = operand2;
+    }
+
+    @Override
+    public void calculate() {
+        this.result = this.operand1 - this.operand2;
+    }
+
+    @Override
+    public void showInfo() {
+        calculate();
+        System.out.println("Lớp: Subtraction");
+        System.out.printf("%.2f - %.2f = %.2f\n", operand1, operand2, result);
+    }
+}
+
+class Multiplication implements IMathOperation {
+    private float operand1;
+    private float operand2;
+    private float result;
+
+    public Multiplication(float operand1, float operand2) {
+        this.operand1 = operand1;
+        this.operand2 = operand2;
+    }
+
+    @Override
+    public void calculate() {
+        this.result = this.operand1 * this.operand2;
+    }
+
+    @Override
+    public void showInfo() {
+        calculate();
+        System.out.println("Lớp: Multiplication");
+        System.out.printf("%.2f * %.2f = %.2f\n", operand1, operand2, result);
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            float add1 = scanner.nextFloat();
+            float add2 = scanner.nextFloat();
+            Addition addObj = new Addition(add1, add2);
+
+            float sub1 = scanner.nextFloat();
+            float sub2 = scanner.nextFloat();
+            Subtraction subObj = new Subtraction(sub1, sub2);
+
+            float mul1 = scanner.nextFloat();
+            float mul2 = scanner.nextFloat();
+            Multiplication mulObj = new Multiplication(mul1, mul2);
+
+            addObj.showInfo();
+            subObj.showInfo();
+            mulObj.showInfo();
+        } catch (Exception e) {
+            System.out.println("Dữ liệu nhập vào không hợp lệ. Vui lòng nhập số thực.");
+        } finally {
+            scanner.close();
+        }
+    }
+}
+//4_trich-loc-phan-tu-duy-nhat-va-sap-xep-tang-dan
+import java.util.LinkedList;
+import java.util.Scanner;
+import java.util.TreeSet;
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        if (!scanner.hasNextInt()) return;
+        int n = scanner.nextInt();
+        LinkedList<Integer> inputList = new LinkedList<>();
+        for (int i = 0; i < n; i++) {
+            inputList.add(scanner.nextInt());
+        }
+        TreeSet<Integer> sortedSet = new TreeSet<>(inputList);
+        for (Integer num : sortedSet) {
+            System.out.print(num + " ");
+        }
+        System.out.println();
+        scanner.close();
+    }
+}
+//3_dem-so-lan-xuat-hien-cua-x-trong-mang-lon-bang-thread
+import java.util.Scanner;
+
+class CountTask extends Thread {
+    private int[] array;
+    private int start;
+    private int end;
+    private int x;
+    private int count = 0; 
+    public CountTask(int[] array, int start, int end, int x) {
+        this.array = array;
+        this.start = start;
+        this.end = end;
+        this.x = x;
+    }
+    @Override
+    public void run() {
+        for (int i = start; i <= end; i++) {
+            if (array[i] == x) {
+                count++;
+            }
+        }
+    }
+    public int getCount() {
+        return count;
+    }
+}
+public class Main{
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        if (!scanner.hasNextInt()) return;
+        int n = scanner.nextInt();
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = scanner.nextInt();
+        }
+        int x = scanner.nextInt();
+        int k = scanner.nextInt();
+        if (k > n) {
+            k = n;
+        }
+        CountTask[] threads = new CountTask[k];
+        int segmentSize = n / k;
+        int start = 0;
+        for (int i = 0; i < k; i++) {
+            int end = start + segmentSize - 1;
+            if (i == k - 1) {
+                end = n - 1;
+            }
+            threads[i] = new CountTask(arr, start, end, x);
+            threads[i].start();
+            start = end + 1;
+        }
+        int totalCount = 0;
+        try {
+            for (int i = 0; i < k; i++) {
+                threads[i].join();
+                totalCount += threads[i].getCount();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(totalCount);
+        scanner.close();
+    }
+}
+//2_ghi-va-doc-doi-tuong-bang-objectoutputstream-va-objectinputstream
+import java.io.*;
+import java.util.Scanner;
+
+class MyObject implements Serializable {
+    private String message;
+    private int value;
+    public MyObject(String message, int value){
+        this.message = message;
+        this.value = value;
+    }
+
+    @Override
+    public String toString(){
+        String line = String.format("MyObject{message='%s', value=%d}", this.message, this.value);
+        return line;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        String message = sc.nextLine();
+        int value = sc.nextInt();
+        MyObject obj = new MyObject(message, value);
+        String filePath = "object.txt";
+        try{
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath));
+            oos.writeObject(obj);
+            oos.close();
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath));
+            MyObject readObj = (MyObject) ois.readObject();
+            ois.close();
+            System.out.println(readObj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        sc.close();
+    }
+}
+
