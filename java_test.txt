@@ -1,0 +1,788 @@
+//5_phan-loai-nhan-vien-theo-nhom-tuoi
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.Collectors;
+
+class Employee {
+    private String name;
+    private int age;
+    public Employee(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    public String getName() { return name; }
+    public int getAge() { return age; }
+    public String toDisplayString() {
+        return name + " - " + age;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Predicate<Employee> isOldEnough = emp -> emp.getAge() >= 25;
+        Function<Employee, String> mapToString = Employee::toDisplayString;
+        Comparator<Employee> byAgeDesc = (e1, e2) -> Integer.compare(e2.getAge(), e1.getAge());
+        BinaryOperator<Employee> mergeRule = (e1, e2) -> {
+            return (e1.toDisplayString().length() >= e2.toDisplayString().length()) ? e1 : e2;
+        };
+        try {
+            if (!scanner.hasNextInt()) return;
+            int n = scanner.nextInt();
+            List<Employee> employees = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                String name = scanner.next();
+                int age = scanner.nextInt();
+                employees.add(new Employee(name, age));
+            }
+            List<String> result = employees.stream()
+             .filter(isOldEnough) 
+             .collect(Collectors.toMap(
+                Employee::getName,
+                Function.identity(),
+                mergeRule
+             ))
+             .values().stream().sorted(byAgeDesc).map(mapToString).collect(Collectors.toList()); 
+             result.forEach(System.out::println);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            scanner.close();
+        }
+    }
+}
+
+//1_chuong-trinh-thuc-hien-cac-phep-toan-so-hoc-co-ban
+import java.util.Scanner;
+
+interface IMathOperation {
+    public static final float PI = 3.1416f;
+    void calculate();
+    void showInfo();
+}
+class Addition implements IMathOperation {
+    private float operand1;
+    private float operand2;
+    private float result;
+
+    public Addition(float operand1, float operand2) {
+        this.operand1 = operand1;
+        this.operand2 = operand2;
+    }
+
+    @Override
+    public void calculate() {
+        this.result = this.operand1 + this.operand2;
+    }
+
+    @Override
+    public void showInfo() {
+        calculate();// Thực hiện tính toán trước khi in
+        System.out.println("Lớp: Addition");
+        System.out.printf("%.2f + %.2f = %.2f\n", operand1, operand2, result);
+    }
+}
+class Subtraction implements IMathOperation {
+    private float operand1;
+    private float operand2;
+    private float result;
+
+    public Subtraction(float operand1, float operand2) {
+        this.operand1 = operand1;
+        this.operand2 = operand2;
+    }
+
+    @Override
+    public void calculate() {
+        this.result = this.operand1 - this.operand2;
+    }
+
+    @Override
+    public void showInfo() {
+        calculate();
+        System.out.println("Lớp: Subtraction");
+        System.out.printf("%.2f - %.2f = %.2f\n", operand1, operand2, result);
+    }
+}
+
+class Multiplication implements IMathOperation {
+    private float operand1;
+    private float operand2;
+    private float result;
+
+    public Multiplication(float operand1, float operand2) {
+        this.operand1 = operand1;
+        this.operand2 = operand2;
+    }
+
+    @Override
+    public void calculate() {
+        this.result = this.operand1 * this.operand2;
+    }
+
+    @Override
+    public void showInfo() {
+        calculate();
+        System.out.println("Lớp: Multiplication");
+        System.out.printf("%.2f * %.2f = %.2f\n", operand1, operand2, result);
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            float add1 = scanner.nextFloat();
+            float add2 = scanner.nextFloat();
+            Addition addObj = new Addition(add1, add2);
+
+            float sub1 = scanner.nextFloat();
+            float sub2 = scanner.nextFloat();
+            Subtraction subObj = new Subtraction(sub1, sub2);
+
+            float mul1 = scanner.nextFloat();
+            float mul2 = scanner.nextFloat();
+            Multiplication mulObj = new Multiplication(mul1, mul2);
+
+            addObj.showInfo();
+            subObj.showInfo();
+            mulObj.showInfo();
+        } catch (Exception e) {
+            System.out.println("Dữ liệu nhập vào không hợp lệ. Vui lòng nhập số thực.");
+        } finally {
+            scanner.close();
+        }
+    }
+}
+//4_trich-loc-phan-tu-duy-nhat-va-sap-xep-tang-dan
+import java.util.LinkedList;
+import java.util.Scanner;
+import java.util.TreeSet;
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        if (!scanner.hasNextInt()) return;
+        int n = scanner.nextInt();
+        LinkedList<Integer> inputList = new LinkedList<>();
+        for (int i = 0; i < n; i++) {
+            inputList.add(scanner.nextInt());
+        }
+        TreeSet<Integer> sortedSet = new TreeSet<>(inputList);
+        for (Integer num : sortedSet) {
+            System.out.print(num + " ");
+        }
+        System.out.println();
+        scanner.close();
+    }
+}
+//3_dem-so-lan-xuat-hien-cua-x-trong-mang-lon-bang-thread
+import java.util.Scanner;
+
+class CountTask extends Thread {
+    private int[] array;
+    private int start;
+    private int end;
+    private int x;
+    private int count = 0; 
+    public CountTask(int[] array, int start, int end, int x) {
+        this.array = array;
+        this.start = start;
+        this.end = end;
+        this.x = x;
+    }
+    @Override
+    public void run() {
+        for (int i = start; i <= end; i++) {
+            if (array[i] == x) {
+                count++;
+            }
+        }
+    }
+    public int getCount() {
+        return count;
+    }
+}
+public class Main{
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        if (!scanner.hasNextInt()) return;
+        int n = scanner.nextInt();
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = scanner.nextInt();
+        }
+        int x = scanner.nextInt();
+        int k = scanner.nextInt();
+        if (k > n) {
+            k = n;
+        }
+        CountTask[] threads = new CountTask[k];
+        int segmentSize = n / k;
+        int start = 0;
+        for (int i = 0; i < k; i++) {
+            int end = start + segmentSize - 1;
+            if (i == k - 1) {
+                end = n - 1;
+            }
+            threads[i] = new CountTask(arr, start, end, x);
+            threads[i].start();
+            start = end + 1;
+        }
+        int totalCount = 0;
+        try {
+            for (int i = 0; i < k; i++) {
+                threads[i].join();
+                totalCount += threads[i].getCount();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(totalCount);
+        scanner.close();
+    }
+}
+//2_ghi-va-doc-doi-tuong-bang-objectoutputstream-va-objectinputstream
+import java.io.*;
+import java.util.Scanner;
+
+class MyObject implements Serializable {
+    private String message;
+    private int value;
+    public MyObject(String message, int value){
+        this.message = message;
+        this.value = value;
+    }
+
+    @Override
+    public String toString(){
+        String line = String.format("MyObject{message='%s', value=%d}", this.message, this.value);
+        return line;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        String message = sc.nextLine();
+        int value = sc.nextInt();
+        MyObject obj = new MyObject(message, value);
+        String filePath = "object.txt";
+        try{
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath));
+            oos.writeObject(obj);
+            oos.close();
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath));
+            MyObject readObj = (MyObject) ois.readObject();
+            ois.close();
+            System.out.println(readObj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        sc.close();
+    }
+}
+//arraylist và linklisst
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+public class ArrayListAndLinkedList{
+  public static void main(String[] args){
+    final int N=100000;//số lượng phần tử thử nghiệm
+    //ARRAYLIST TEST
+    List<Integer> arrayList= new ArrayList<>();
+    //đo thời gian thêm
+    long start=System.nanoTime();
+    for(int i=0; i<N;i++){
+      arrayList.add(i);
+    }
+    long end=System.nanoTime();
+    long timeAdd=(end-start)/1000000;
+    //đo thời gian xóa
+    start=System.nanoTime();
+    while(!arrayList.isEmpty()){
+      arrayList.remove(0);
+    }
+    end=System.nanoTime();
+    long timeRemove=(end-start)/1000000;
+
+    System.out.println("\n1. ArrayList:");
+    System.out.println("-Thời gian thêm: "+timeAdd+" ms");
+    System.out.println("-Thời gian xóa (từ đầu): "+timeRemove+" ms");
+    //LINKEDLIST TEST
+    List<Integer> linkedList= new LinkedList<>();
+    //đo thời gian thêm
+    start=System.nanoTime();
+    for(int i=0; i<N;i++){
+      linkedList.add(i);
+    }
+    end=System.nanoTime();
+    long timeAdd2=(end-start)/1000000;
+    //đo thời gian xóa
+    start=System.nanoTime();
+    while(!linkedList.isEmpty()){
+      linkedList.remove(0);
+    }
+    end=System.nanoTime();
+    long timeRemove2=(end-start)/1000000;
+
+    System.out.println("\n2. LinkedList:");
+    System.out.println("-Thời gian thêm: "+timeAdd2+" ms");
+    System.out.println("-Thời gian xóa (từ đầu): "+timeRemove2+" ms");
+  }
+}
+//fileinput output stream
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class FileInputOuputStream {
+    public static void main(String[] args) {
+        String fileName = "raw.txt";
+        String myName = "Hoang Nang Minh"; // Bạn thay tên của mình vào đây
+        // --- PHẦN A: GHI FILE (FileOutputStream) ---
+        try {
+            // 1. Tạo đối tượng FileOutputStream
+            // (Nếu file chưa có nó sẽ tự tạo, nếu có rồi nó sẽ ghi đè)
+            FileOutputStream fos = new FileOutputStream(fileName);
+            // 2. Chuyển chuỗi String thành mảng byte
+            // Vì FileOutputStream chỉ làm việc với byte, không làm việc trực tiếp với String
+            byte[] data = myName.getBytes();
+            // 3. Ghi dữ liệu vào file
+            fos.write(data);
+            // 4. Đóng luồng để giải phóng tài nguyên
+            fos.close();
+            System.out.println("Đã ghi tên vào file " + fileName + " thành công!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("---------------------------------");
+        // --- PHẦN B: ĐỌC FILE VÀ IN HOA (FileInputStream) ---
+        try {
+            // 1. Tạo đối tượng FileInputStream để đọc file vừa ghi
+            FileInputStream fis = new FileInputStream(fileName);
+            // 2. Cách đọc:
+            // Chúng ta sẽ đọc toàn bộ byte, chuyển thành String rồi in hoa.
+            // (Cách này tốt hơn đọc từng ký tự lẻ nếu tên bạn có dấu tiếng Việt)
+            int size = fis.available(); // Kiểm tra số lượng byte có thể đọc
+            byte[] buffer = new byte[size]; // Tạo bộ đệm chứa dữ liệu
+            fis.read(buffer); // Đọc file và đổ vào bộ đệm
+            // 3. Chuyển đổi byte sang String
+            String content = new String(buffer);
+            // 4. Chuyển thành chữ hoa và in ra màn hình
+            System.out.println("Nội dung đọc được (In hoa):");
+            System.out.println(content.toUpperCase());
+            // 5. Đóng luồng
+            fis.close();
+        } catch (IOException e) {
+            System.out.println("Lỗi đọc file: " + e.getMessage());
+        }
+    }
+}
+//Hashmap treemap
+import java.util.*;
+public class HashmapAndTreemap{
+  public static void main(String[] args){
+    final int N=100000;
+    final int MaxKey=200000;
+    List<Integer> keys= new ArrayList<>();
+    Random random=new Random();
+    for (int i=0;i<N;i++){
+      keys.add(random.nextInt(MaxKey));
+    }
+    //HASHMAP
+    System.out.println("\n1. HASHMAP:");
+    Map<Integer,Integer> hashMap = new HashMap<>();
+    testMapPerformance(hashMap,keys,"HashMap");
+    //TREEMAP
+    System.out.println("\n2. TREEMAP:");
+    Map<Integer, Integer> treeMap = new TreeMap<>();
+    testMapPerformance(treeMap,keys,"TreeMap");
+  }
+  public static void testMapPerformance(Map<Integer,Integer> map, List<Integer> keys,String mapName){
+    long start, end;
+    //Them phan tu
+    start= System.nanoTime();
+    for(Integer key: keys){
+      map.put(key,key*10);
+    }
+    end = System.nanoTime();
+    System.out.println("-Thời gian Put "+keys.size()+" phần tử: "+(end-start)/1000000+" ms");
+    //in 5 phan tu dau tien
+    System.out.print("-Thứ tự Key lưu trữ (5 phần tử đầu): ");
+    int count = 0;
+    for (Integer key : map.keySet()) {
+      System.out.print(key + " ");
+      count++;
+      if (count >= 5) break;
+    }
+    //lay gia tri(get)-truy xuất toàn bộ key
+    start=System.nanoTime();
+    for(Integer key:keys){
+      map.get(key);
+    }
+    end=System.nanoTime();
+    System.out.println("-Thời gian Get (truy xuất toàn bộ): "+(end-start)/1000000+" ms");
+    //Kiem tra ton tai
+    start = System.nanoTime();
+    for (int i=0;i<keys.size()/2;i++) {
+      map.containsKey(keys.get(i));
+    }
+    end = System.nanoTime();
+    System.out.println("-Thời gian ContainsKey ("+(keys.size()/2)+" lần): "+(end-start)/1000000+" ms");
+    //Xoa phan tu
+    start=System.nanoTime();
+    for(Integer key:keys) {
+      map.remove(key);
+    }
+    end = System.nanoTime();
+    System.out.println("-Thời gian Remove toàn bộ: " + (end-start)/1000000+" ms");
+  }
+}
+//Hashset treeset
+import java.util.*;
+public class HashsetAndTreeset{
+  public static void main(String[] args){
+    final int N=100000;
+    final int MaxValue=200000;
+    List<Integer> inputData=new ArrayList<>();
+    Random random = new Random();
+    for (int i=0;i<N;i++){
+      inputData.add(random.nextInt(MaxValue));
+    }
+    //HASHSET
+    System.out.println("\n1. HASHSET:");
+    Set<Integer> hashSet = new HashSet<>();
+    testSetPerformance(hashSet,inputData,"HashSet");
+    //TREESET
+    System.out.println("\n2. TREESET:");
+    Set<Integer> treeSet = new TreeSet<>();
+    testSetPerformance(treeSet,inputData,"TreeSet");
+  }
+  public static void testSetPerformance(Set<Integer> set, List<Integer> data, String setName){
+    long start, end;
+    //do thoi gian them
+    start=System.nanoTime();
+    for(Integer val:data){
+      set.add(val);
+    }
+    end=System.nanoTime();
+    System.out.println("-Thời gian thêm "+data.size()+" phần tử: "+(end-start)/1000000+" ms");
+    //IN 10PHAN TU DAU TIEN
+    System.out.print("-Thứ tự lưu trữ (10 phần tử đầu): ");
+    int count=0;
+    for(Integer val:set){
+      System.out.print(val+" ");
+      count++;
+      if(count>=10)break;
+    } 
+    //do thoi gian kiem tra ton tai
+    start=System.nanoTime();
+    for(int i=0;i<10000;i++){
+      set.contains(i*2);
+    }
+    end=System.nanoTime();
+    System.out.println("-Thời gian kiểm tra (contains)10.000 lần: "+(end-start)/1000000+" ms");
+    //do thoi gian xoa
+    start=System.nanoTime();
+    for(Integer val:data){
+      set.remove(val);
+    }
+    end=System.nanoTime();
+    System.out.println("- Thời gian xóa toàn bộ: "+(end-start)/1000000+" ms");
+  }
+}
+//interface
+
+class NEUStudent extends Person implements IStaff, IStudent{
+  protected String studentID;
+  // Phương thức khởi tạo đầy đủ tham số
+  public NEUStudent(String name, int age, String ID, String birthDate, String studentID) {
+        // Gọi constructor của lớp cha (Person)
+        super(name, age, ID, birthDate);
+        this.studentID = studentID;
+  }
+  @Override
+  public void showInfo() {
+   System.out.println("--- THÔNG TIN SINH VIÊN NEU ---");
+   System.out.println("Tên: " + this.name);
+   System.out.println("Tuổi: " + this.getAge()); // Truy cập private qua getter
+   System.out.println("CCCD/CMND: " + this.ID); // Truy cập protected trực tiếp vì là lớp con
+   System.out.println("Ngày sinh: " + this.birthDate);
+   System.out.println("Mã SV: " + this.studentID);
+  }
+  // Ghi đè phương thức work() từ IStaff
+  @Override
+  public void work() {
+        System.out.println(this.name + " đang làm việc: Hỗ trợ tuyển sinh hoặc tham gia CLB.");
+  }
+
+  // Ghi đè phương thức study() từ IStudent
+  @Override
+  public void study() {
+        System.out.println(this.name + " đang học bài: Nghiên cứu tài liệu chuyên ngành Kinh tế.");
+  }
+}
+interface IStaff{
+  void work();
+}
+interface IStudent{
+  void study();
+}
+abstract class Person{
+  String name;
+  private int age;
+  protected String ID;
+  public String birthDate;
+  public Person(String name, int age, String ID, String birthDate){
+    this.name=name;
+    this.age=age;
+    this.ID=ID;
+    this.birthDate=birthDate;
+  }
+  // Getter và Setter cho thuộc tính private age
+  public int getAge(){
+    return age;
+  }
+  public void setAge(int age){
+    this.age=age;
+  }
+  public abstract void showInfo();// Phương thức trừu tượng showInfo
+}
+public class Interface_Extend_Implement{
+ public static void main(String[] args) {
+  NEUStudent myself = new NEUStudent(
+   "Nguyễn Văn A",21,"001203000xxx","01/01/2004", "11223344"          
+  );
+  NEUStudent otherStudent = new NEUStudent(
+   "Trần Thị B",20,"001204000yyy","15/05/2005","99887766"
+  );
+  myself.showInfo();
+  myself.study();
+  myself.work();
+  System.out.println("\n--------------------------\n");
+  otherStudent.showInfo();
+  otherStudent.study();
+  otherStudent.work();
+ }
+}
+//Triple
+import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
+
+// Tên class nên viết hoa chữ cái đầu (Convention): TripleExample
+public class triple { 
+
+    // THÊM TỪ KHÓA 'static' Ở ĐÂY
+    public static class Triple<A, B, C> { 
+        private A first;
+        private B second;
+        private C third;
+
+        public Triple(A first, B second, C third) {
+            this.first = first;
+            this.second = second;
+            this.third = third;
+        }
+
+        public A getFirst() { return first; }
+        public void setFirst(A first) { this.first = first; }
+
+        public B getSecond() { return second; }
+        public void setSecond(B second) { this.second = second; }
+
+        public C getThird() { return third; }
+        public void setThird(C third) { this.third = third; }
+
+        @Override
+        public String toString() {
+            return "(" + first + ", " + second + ", " + third + ")";
+        }
+
+        // --- Override equals ---
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Triple<?, ?, ?> triple = (Triple<?, ?, ?>) o;
+            return Objects.equals(first, triple.first) &&
+                   Objects.equals(second, triple.second) &&
+                   Objects.equals(third, triple.third);
+        }
+
+        // --- Override hashCode ---
+        @Override
+        public int hashCode() {
+            return Objects.hash(first, second, third);
+        }
+    }
+
+    public static void main(String[] args) {
+        // 1. Tạo 3 đối tượng Triple (Tên, Tuổi, GPA)
+        // Bây giờ dòng này đã hợp lệ vì Triple là static class
+        Triple<String, Integer, Double> s1 = new Triple<>("Nguyen Van A", 20, 3.2);
+        Triple<String, Integer, Double> s2 = new Triple<>("Tran Thi B", 21, 3.8);
+        Triple<String, Integer, Double> s3 = new Triple<>("Le Van C", 22, 3.9);
+
+        // 2. In thông tin ban đầu bằng toString()
+        System.out.println("--- DANH SÁCH BAN ĐẦU ---");
+        System.out.println("S1: " + s1);
+        System.out.println("S2: " + s2);
+        System.out.println("S3: " + s3);
+
+        // 3. Lấy và in giá trị từng phần (Getter)
+        System.out.println("\n--- KIỂM TRA GETTER (S1) ---");
+        System.out.println("Tên: " + s1.getFirst());
+        System.out.println("Tuổi: " + s1.getSecond());
+        System.out.println("GPA: " + s1.getThird());
+
+        // 4. Thay đổi tuổi (Setter)
+        System.out.println("\n--- THAY ĐỔI TUỔI S1 ---");
+        s1.setSecond(25); // Sửa tuổi từ 20 -> 25
+        System.out.println("S1 sau khi sửa: " + s1);
+
+        // 5. Sử dụng Collection (List)
+        List<Triple<String, Integer, Double>> studentList = new ArrayList<>();
+        studentList.add(s1);
+        studentList.add(s2);
+        studentList.add(s3);
+
+        // 6. Duyệt và lọc sinh viên có GPA > 3.6
+        System.out.println("\n--- SINH VIÊN CÓ GPA > 3.6 ---");
+        for (Triple<String, Integer, Double> t : studentList) {
+            if (t.getThird() > 3.6) {
+                System.out.println(t);
+            }
+        }
+
+        // 7. Thêm mới và Xóa bằng equals
+        System.out.println("\n--- THÊM VÀ XÓA ---");
+        // Thêm sinh viên mới
+        studentList.add(new Triple<>("Pham Van D", 19, 2.5));
+
+        // Xóa sinh viên "Tran Thi B"
+        // Nhờ đã Override equals(), ArrayList sẽ tìm thấy và xóa đúng đối tượng có nội dung tương tự.
+        Triple<String, Integer, Double> studentToRemove = new Triple<>("Tran Thi B", 21, 3.8);
+        boolean isRemoved = studentList.remove(studentToRemove);
+
+        System.out.println("Đã xóa Tran Thi B? " + (isRemoved ? "Thành công" : "Thất bại"));
+
+        System.out.println("Danh sách cuối cùng:");
+        for (Triple<String, Integer, Double> t : studentList) {
+            System.out.println(t);
+        }
+    }
+}
+//2thread
+
+public class TwoThread {
+  public static void main(String[] args) {
+    Thread thread1 = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        long sum = 0;
+        for (int i = 0; i <= 1000; i++)
+          sum += i;
+        System.out.println("[Thread-1] Tổng các số từ 1 đến 1000 là: " + sum);
+      }
+    });
+    Thread thread2 = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        int limit = 1000;
+        for (int i = limit - 1; i >= 2; i--) {
+          if (isPrime(i)) {
+            System.out.println("[Thread-2] Số nguyên tố lớn nhất nhỏ hơn 1000 là: " + i);
+            return; // Tìm thấy rồi thì kết thúc Thread luôn
+          }
+        }
+      }
+
+      private boolean isPrime(int n) {
+        if (n < 2)
+          return false;
+        for (int i = 2; i <= Math.sqrt(n); i++) {
+          if (n % i == 0)
+            return false;
+        }
+        return true;
+      }
+    });
+    System.out.println("--- Bắt đầu chạy các luồng ---");
+    thread1.start();
+    thread2.start();
+  }
+}
+
+//stream
+package streams;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+public class oneStreams {
+    public static void main(String[] args) {
+        // 1. Tạo danh sách số nguyên theo đề bài
+        List<Integer> numbers = Arrays.asList(10, 5, 8, 20, 3, 15, 7, 12);
+        // 2. Tìm số lớn nhất sử dụng Stream và Optional
+        Optional<Integer> maxNumber = numbers.stream().max(Integer::compareTo);
+        // 3. Tìm số nhỏ nhất sử dụng Stream và Optional
+        Optional<Integer> minNumber = numbers.stream().min(Integer::compareTo);
+        // 4. In kết quả nếu giá trị tồn tại (isPresent)
+        maxNumber.ifPresent(num -> System.out.println("Số lớn nhất là: " + num));
+        minNumber.ifPresent(num -> System.out.println("Số nhỏ nhất là: " + num));
+    }
+}
+
+
+package streams;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class twoStreams {
+    public static void main(String[] args) {
+        // 1. Tạo danh sách số nguyên
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        // --- CÁCH 1: Sử dụng mapToInt().sum() (Khuyên dùng cho tính tổng số học) ---
+        int sum1 = numbers.stream()
+                .filter(n -> n % 2 == 0) // Lọc số chẵn
+                .mapToInt(Integer::intValue) // Chuyển Stream<Integer> sang IntStream
+                .sum(); // Tính tổng
+        System.out.println("Tổng số chẵn (Dùng mapToInt): " + sum1);
+
+        // --- CÁCH 2: Sử dụng reduce() (Tổng quát) ---
+        int sum2 = numbers.stream()
+                .filter(n -> n % 2 == 0) // Lọc số chẵn
+                .reduce(0, (a, b) -> a + b); // Cộng dồn: 0 là giá trị khởi tạo
+        // Hoặc viết gọn hơn: .reduce(0, Integer::sum);
+        System.out.println("Tổng số chẵn (Dùng reduce):  " + sum2);
+    }
+}
+
+
+
+package streams;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class threeStreams {
+    public static void main(String[] args) {
+        // 1. Tạo danh sách số thực
+        List<Double> numbers = Arrays.asList(5.5, 8.0, 3.2, 9.1, 6.4);
+        // 2. Xử lý Stream để tính trung bình
+        double average = numbers.stream()
+                // Chuyển Stream<Double> (Object) sang DoubleStream (Primitive)
+                .mapToDouble(Double::doubleValue)
+                // Tính trung bình -> Trả về OptionalDouble
+                .average()
+                // Lấy giá trị ra, nếu danh sách rỗng thì trả về 0.0
+                .orElse(0.0);
+        // 3. In kết quả
+        System.out.println("Giá trị trung bình là: " + average);
+    }
+}
